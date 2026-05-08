@@ -159,6 +159,20 @@ class LLMExtractionService:
         self._timeout = settings.OLLAMA_TIMEOUT
         self._max_retries = settings.OLLAMA_MAX_RETRIES
 
+    # def extract(self, document: ExtractedDocument) -> ExtractedClaim:
+    #     """
+    #     Main entry point: takes an ExtractedDocument and returns an ExtractedClaim.
+
+    #     Raises:
+    #         LLMUnavailableError: if Ollama service cannot be reached
+    #         LLMExtractionError:  if LLM returns unusable output after retries
+    #     """
+    #     text = document.raw_text[:12_000]  # Trim to ~3k tokens; most ACORD forms fit
+    #     prompt = USER_PROMPT_TEMPLATE.format(document_text=text)
+    #     logger.info(f"Document chars: {len(document.text)}")
+    #     raw_response = self._call_llm_with_retries(prompt)
+    #     return self._parse_response(raw_response)
+
     def extract(self, document: ExtractedDocument) -> ExtractedClaim:
         """
         Main entry point: takes an ExtractedDocument and returns an ExtractedClaim.
@@ -167,10 +181,29 @@ class LLMExtractionService:
             LLMUnavailableError: if Ollama service cannot be reached
             LLMExtractionError:  if LLM returns unusable output after retries
         """
-        text = document.raw_text[:12_000]  # Trim to ~3k tokens; most ACORD forms fit
-        prompt = USER_PROMPT_TEMPLATE.format(document_text=text)
 
+        # Original extracted text
+        raw_text = document.raw_text
+
+        # Logging
+        logger.info(f"Document chars: {len(raw_text)}")
+        logger.info(f"Approx tokens: {len(raw_text) // 4}")
+
+        # Trim oversized PDFs
+        text = raw_text[:12_000]
+
+        logger.info(f"Trimmed chars: {len(text)}")
+        logger.info(f"Prompt tokens est: {len(text) // 4}")
+
+        # Build prompt
+        prompt = USER_PROMPT_TEMPLATE.format(
+            document_text=text
+        )
+
+        # Call LLM
         raw_response = self._call_llm_with_retries(prompt)
+
+        # Parse structured response
         return self._parse_response(raw_response)
 
     # ── LLM communication ─────────────────────────────────────────────────────

@@ -34,6 +34,7 @@ from app.services.processor import ClaimsProcessor
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
+llm_semaphore = asyncio.Semaphore(1)
 
 # Thread pool for CPU/IO bound LLM calls (keeps the async event loop free)
 _executor = ThreadPoolExecutor(max_workers=4, thread_name_prefix="fnol-worker")
@@ -95,9 +96,13 @@ async def process_single_claim(
 
     loop = asyncio.get_event_loop()
     try:
-        result = await loop.run_in_executor(
-            _executor, _run_in_thread, processor, file.filename, content
-        )
+        # result = await loop.run_in_executor(
+        #     _executor, _run_in_thread, processor, file.filename, content
+        # )
+        async with llm_semaphore:
+            result = await loop.run_in_executor(
+                 _executor, _run_in_thread, processor, file.filename, content
+            )
     except Exception as exc:
         raise _map_exception_to_http(exc, file.filename) from exc
 

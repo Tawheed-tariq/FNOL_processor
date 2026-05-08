@@ -36,15 +36,24 @@ class TestFileTypeValidation:
         with pytest.raises(UnsupportedFileTypeError):
             svc.ingest("document", VALID_PDF_HEADER)
 
-    def test_uppercase_pdf_extension_rejected(self, svc):
-        # Extensions should be lowercased – "PDF" not same as "pdf"
-        with pytest.raises(UnsupportedFileTypeError):
+    def test_uppercase_pdf_extension_accepted(self, svc):
+        # .PDF (uppercase) is lowercased internally and treated as valid.
+        # The type check passes; only the fake PDF bytes cause a later error —
+        # but it must NOT be UnsupportedFileTypeError.
+        with pytest.raises(Exception) as exc_info:
             svc.ingest("document.PDF", VALID_PDF_HEADER)
+        assert not isinstance(exc_info.value, UnsupportedFileTypeError), (
+            ".PDF extension should be accepted; only content extraction may fail"
+        )
+
+    def test_wrong_extension_even_with_pdf_magic_raises(self, svc):
+        # .txt extension rejected even when bytes look like PDF
+        with pytest.raises(UnsupportedFileTypeError):
+            svc.ingest("document.txt", VALID_PDF_HEADER)
 
 
 class TestFileSizeValidation:
     def test_file_exceeding_limit_raises(self, svc):
-        # Patch MAX_BYTES to a tiny value
         svc.MAX_BYTES = 10
         with pytest.raises(FileSizeLimitError, match="limit"):
             svc.ingest("doc.pdf", b"%PDF" + b"x" * 100)
@@ -59,8 +68,6 @@ class TestTextExtraction:
             assert doc.file_size_bytes == len(sample_pdf_bytes)
             assert doc.pages >= 1
         except DocumentIngestionError as e:
-            # If pdfplumber can't extract text from the minimal PDF, that's acceptable
-            # (image-only PDF). The important thing is no crash on valid PDF bytes.
             assert "No extractable text" in str(e) or "Failed to extract" in str(e)
 
     def test_mock_pdfplumber_successful_extraction(self, svc):

@@ -27,6 +27,8 @@ class Settings(BaseSettings):
     OLLAMA_MODEL: str = "llama3"           # or "mistral", "phi3", etc.
     OLLAMA_TIMEOUT: int = 120              # seconds
     OLLAMA_MAX_RETRIES: int = 2
+    OLLAMA_NO_GPU: bool = True
+    OLLAMA_NUM_CTX: int = 2048
 
     # ── Processing limits ─────────────────────────────────────────────────────
     MAX_FILE_SIZE_MB: int = 20
