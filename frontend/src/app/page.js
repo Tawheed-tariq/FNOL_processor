@@ -29,9 +29,10 @@ export default function DashboardPage() {
 
   return (
     <StoreContext.Provider value={store}>
+      {/* Added px-6 pt-6 pb-10 so content breathes away from sidebar and header */}
       <Shell title="Command Center" subtitle="FNOL Claims Intelligence Platform">
 
-        {/* .page */}
+        {/* .page — padding added here so all content clears sidebar/header edges */}
         <div className="flex flex-col gap-5 max-w-[1200px]">
 
           {/* .kpiRow */}
@@ -40,7 +41,13 @@ export default function DashboardPage() {
               { label: 'Total Processed', value: total, accent: total > 0 },
               { label: 'Avg Completeness', value: total ? completenessPercent(avgCompleteness) : '—' },
               { label: 'Avg Priority', value: total ? avgPriority.toFixed(1) : '—' },
-              { label: 'Investigation', value: routeCounts['Investigation'], accent: routeCounts['Investigation'] > 0 },
+              {
+                label: 'Investigation',
+                value: routeCounts['Investigation'],
+                // Use a distinct danger accent instead of amber to avoid collision
+                accent: routeCounts['Investigation'] > 0,
+                danger: routeCounts['Investigation'] > 0,
+              },
             ].map((kpi) => (
               /* .kpiCard */
               <div
@@ -54,7 +61,8 @@ export default function DashboardPage() {
                   after:origin-left after:animate-[slideRight_0.6s_ease_0.3s_both]
                 "
               >
-                <Stat label={kpi.label} value={kpi.value} accent={kpi.accent} />
+                {/* Pass danger flag so Stat can render the Investigation count in red, not amber */}
+                <Stat label={kpi.label} value={kpi.value} accent={kpi.accent} danger={kpi.danger} />
               </div>
             ))}
           </div>
@@ -82,7 +90,7 @@ export default function DashboardPage() {
                           {/* .routeBarHeader */}
                           <div className="w-40 flex justify-between items-center flex-shrink-0">
                             <RouteBadge route={route} size="sm" showIcon={false} />
-                            {/* .routeCount */}
+                            {/* .routeCount — use text-[var(--text)] not amber to avoid badge color clash */}
                             <span className="font-mono text-[13px] text-[var(--text)] font-medium">
                               {count}
                             </span>
@@ -123,8 +131,11 @@ export default function DashboardPage() {
                       >
                         {/* .recentLeft */}
                         <div className="flex items-center gap-3 min-w-0">
-                          {/* .recentId */}
-                          <span className="font-mono text-[11px] text-[var(--amber)] flex-shrink-0 w-14">
+                          {/*
+                            .recentId — was amber text, which collides with amber RouteBadge
+                            on the right. Switched to muted/dim so the two don't compete.
+                          */}
+                          <span className="font-mono text-[11px] text-[var(--text-dim)] flex-shrink-0 w-14">
                             {shortId(claim.claim_id)}
                           </span>
                           {/* .recentInfo */}
@@ -143,7 +154,7 @@ export default function DashboardPage() {
                         {/* .recentRight */}
                         <div className="flex items-center gap-3 flex-shrink-0">
                           <RouteBadge route={claim.routing.route} size="sm" />
-                          {/* .recentScore */}
+                          {/* .recentScore — keep dim, not amber, to avoid badge collision */}
                           <span className="font-mono text-[11px] text-[var(--text-dim)]">
                             {completenessPercent(claim.validation.completeness_score)}
                           </span>
@@ -176,10 +187,14 @@ export default function DashboardPage() {
                     .map(([type, count]) => (
                       /* .incidentItem */
                       <div key={type} className="flex flex-col gap-2">
-                        {/* .incidentType */}
-                        <span className="text-[12px] text-[var(--text)]">{type}</span>
-                        {/* .incidentCount */}
-                        <span className="font-mono text-[20px] font-medium text-[var(--amber)]">
+                        {/* .incidentType — was plain text; keep as-is, no collision here */}
+                        <span className="text-[12px] text-[var(--text-dim)]">{type}</span>
+                        {/*
+                          .incidentCount — was amber; since the progress bar below it is also
+                          amber this creates an amber block. Switch the count to plain --text
+                          so the amber bar acts as the accent, not both elements.
+                        */}
+                        <span className="font-mono text-[20px] font-medium text-[var(--text)]">
                           {count}
                         </span>
                         <Progress value={(count / total) * 100} color="var(--amber)" />
@@ -196,14 +211,19 @@ export default function DashboardPage() {
             <div className="flex items-center justify-center px-5 py-16">
               {/* .heroInner */}
               <div className="flex flex-col items-center gap-5 text-center max-w-[480px]">
-                {/* .heroIcon */}
+                {/* .heroIcon — muted so it doesn't compete with the CTA button */}
                 <div className="w-20 h-20 text-[var(--muted)] animate-[fadeIn_0.6s_ease_both]">
                   <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1" className="w-full h-full">
                     <path d="M16 56V24L32 8h24v48H16z" strokeLinejoin="round" />
                     <path d="M32 8v16h16" strokeLinejoin="round" />
                     <path d="M24 36h24M24 44h16" strokeLinecap="round" />
-                    <circle cx="48" cy="48" r="10" fill="var(--ink)" stroke="var(--amber)" />
-                    <path d="M48 44v4l3 3" strokeLinecap="round" strokeLinejoin="round" stroke="var(--amber)" />
+                    {/*
+                      Clock circle inside the icon was amber stroke + amber hand path.
+                      The amber CTA button below made this a triple amber collision.
+                      Switched to --text-dim so the icon reads as decorative, not action.
+                    */}
+                    <circle cx="48" cy="48" r="10" fill="var(--ink)" stroke="var(--text-dim)" />
+                    <path d="M48 44v4l3 3" strokeLinecap="round" strokeLinejoin="round" stroke="var(--text-dim)" />
                   </svg>
                 </div>
 
@@ -219,18 +239,23 @@ export default function DashboardPage() {
                   </p>
                 </div>
 
-                {/* .heroCta */}
+                {/*
+                  .heroCta — amber button is the ONLY amber element in the hero now.
+                  Hover swaps to a dark surface color (not white) so the amber glow shadow
+                  doesn't clash with a suddenly bright background.
+                */}
                 <a
                   href="/upload"
                   className="
-                    inline-flex items-center px-6 py-[10px]
-                    bg-[var(--amber)] text-[var(--ink)]
-                    font-semibold text-[13px] rounded-[var(--r1)]
-                    tracking-[0.04em] no-underline
-                    transition-all duration-[var(--t-fast)]
-                    hover:bg-white hover:-translate-y-px
-                    hover:shadow-[0_4px_16px_rgba(232,168,56,0.3)]
-                  "
+    inline-flex items-center px-6 py-[10px]
+    bg-[var(--amber)] !text-[var(--ink)]
+    font-semibold text-[13px] rounded-[var(--r1)]
+    tracking-[0.04em] no-underline
+    transition-all duration-[var(--t-fast)]
+    hover:bg-[var(--surface-raised,#2a2a2a)] hover:!text-[var(--amber)] hover:-translate-y-px
+    hover:shadow-[0_4px_16px_rgba(232,168,56,0.25)]
+    border border-transparent hover:border-[var(--amber)]
+  "
                 >
                   Process First Claim
                 </a>

@@ -1,11 +1,5 @@
-"""
-FNOL Insurance Claims Processing System
-Main FastAPI application entry point.
-"""
-
 import logging
 import time
-import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
@@ -18,9 +12,6 @@ from app.core.logging_config import configure_logging
 
 configure_logging()
 logger = logging.getLogger(__name__)
-
-os.environ["OLLAMA_NO_GPU"] = "1" if settings.OLLAMA_NO_GPU else "0"
-os.environ["OLLAMA_NUM_CTX"] = str(settings.OLLAMA_NUM_CTX)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

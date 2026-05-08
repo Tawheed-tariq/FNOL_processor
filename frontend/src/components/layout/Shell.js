@@ -1,15 +1,23 @@
+'use client';
 import Sidebar from './Sidebar';
 import Header from './Header';
 
-export default function Shell({ children, title, subtitle }) {
+export default function Shell({ title, subtitle, children }) {
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen bg-[var(--ink)]">
+
       <Sidebar />
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+
+      {/* Right column: header + scrollable content */}
+      <div className="flex flex-col flex-1 min-w-0">
+
         <Header title={title} subtitle={subtitle} />
-        <main className="flex-1 p-6 animate-[fadeUp_0.4s_var(--t-slow)_both]">
+
+        {/* Main content — padding keeps children away from header bottom and sidebar right edge */}
+        <main className="flex-1 overflow-y-auto px-8 py-7">
           {children}
         </main>
+
       </div>
     </div>
   );

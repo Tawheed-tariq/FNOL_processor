@@ -1,39 +1,12 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { LayoutDashboard, Upload, ClipboardList } from 'lucide-react';
 
 const NAV = [
-  {
-    href: '/',
-    label: 'Dashboard',
-    icon: (
-      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5">
-        <rect x="2" y="2" width="7" height="7" rx="1" />
-        <rect x="11" y="2" width="7" height="7" rx="1" />
-        <rect x="2" y="11" width="7" height="7" rx="1" />
-        <rect x="11" y="11" width="7" height="7" rx="1" />
-      </svg>
-    ),
-  },
-  {
-    href: '/upload',
-    label: 'Process Claim',
-    icon: (
-      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5">
-        <path d="M10 13V4M10 4L7 7M10 4L13 7" strokeLinecap="round" strokeLinejoin="round" />
-        <path d="M3 14v2a1 1 0 001 1h12a1 1 0 001-1v-2" strokeLinecap="round" />
-      </svg>
-    ),
-  },
-  {
-    href: '/claims',
-    label: 'Claims Registry',
-    icon: (
-      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5">
-        <path d="M4 4h12M4 8h12M4 12h8M4 16h6" strokeLinecap="round" />
-      </svg>
-    ),
-  },
+  { href: '/',        label: 'Dashboard',       icon: LayoutDashboard },
+  { href: '/upload',  label: 'Process Claim',   icon: Upload },
+  { href: '/claims',  label: 'Claims Registry', icon: ClipboardList },
 ];
 
 export default function Sidebar() {
@@ -59,7 +32,7 @@ export default function Sidebar() {
         </div>
       </div>
 
-      {/* Divider — negative mx to bleed to sidebar edges */}
+      {/* Divider */}
       <div className="h-px bg-[var(--border)] -mx-5" />
 
       {/* Nav */}
@@ -67,12 +40,12 @@ export default function Sidebar() {
         <p className="text-[10px] font-mono text-[var(--text-dim)] tracking-[0.1em] uppercase py-4 pb-2">
           Navigation
         </p>
-        {NAV.map((item) => {
-          const active = pathname === item.href;
+        {NAV.map(({ href, label, icon: Icon }) => {
+          const active = pathname === href;
           return (
             <Link
-              key={item.href}
-              href={item.href}
+              key={href}
+              href={href}
               className={`
                 relative flex items-center gap-3 py-[10px] px-3 rounded-[var(--r2)]
                 text-[13px] no-underline transition-all duration-[var(--t-fast)]
@@ -82,10 +55,8 @@ export default function Sidebar() {
                 }
               `}
             >
-              <span className="w-[18px] h-[18px] flex-shrink-0 [&>svg]:w-full [&>svg]:h-full">
-                {item.icon}
-              </span>
-              <span className="flex-1">{item.label}</span>
+              <Icon size={16} strokeWidth={1.6} className="flex-shrink-0" />
+              <span className="flex-1">{label}</span>
               {active && (
                 <span className="absolute right-0 top-1/4 bottom-1/4 w-0.5 bg-[var(--amber)] rounded-full" />
               )}
