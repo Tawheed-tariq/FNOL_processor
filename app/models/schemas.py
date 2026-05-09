@@ -1,18 +1,13 @@
-"""
-Pydantic v2 schemas for the FNOL processing pipeline.
-These are the canonical data contracts used across all layers.
-"""
-
 from __future__ import annotations
 
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import List, Optional
 
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import BaseModel, Field
 
 
-# ── Enumerations ──────────────────────────────────────────────────────────────
+# Enumerations
 
 class ClaimRoute(str, Enum):
     FAST_TRACK = "Fast-track"
@@ -39,7 +34,7 @@ class ValidationSeverity(str, Enum):
     INFO = "info"
 
 
-# ── Sub-models ────────────────────────────────────────────────────────────────
+# Sub-models
 
 class PolicyInformation(BaseModel):
     policy_number: Optional[str] = Field(None, description="Insurance policy number")
@@ -164,7 +159,7 @@ class Witness(BaseModel):
     vehicle_number: Optional[str] = None
 
 
-# ── Validation models ─────────────────────────────────────────────────────────
+# Validation models─
 
 class ValidationIssue(BaseModel):
     field: str
@@ -181,7 +176,7 @@ class ValidationReport(BaseModel):
     )
 
 
-# ── Routing ───────────────────────────────────────────────────────────────────
+# Routing─
 
 class RoutingDecision(BaseModel):
     route: ClaimRoute
@@ -192,7 +187,7 @@ class RoutingDecision(BaseModel):
     flags: List[str] = Field(default_factory=list, description="Notable flags affecting routing")
 
 
-# ── Extracted claim ───────────────────────────────────────────────────────────
+# Extracted claim─
 
 class ExtractedClaim(BaseModel):
     """Full structured representation of a processed FNOL document."""
@@ -215,7 +210,7 @@ class ExtractedClaim(BaseModel):
     )
 
 
-# ── API request / response models ─────────────────────────────────────────────
+# API request / response models─
 
 class ProcessingMetadata(BaseModel):
     filename: str

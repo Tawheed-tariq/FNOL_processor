@@ -1,12 +1,12 @@
 """
 Validation Service
-------------------
+
 Applies domain rules to an ExtractedClaim and produces a ValidationReport.
 
 Validation tiers:
-  ERROR   – required field is missing or value is logically impossible
-  WARNING – field is present but suspicious (e.g. future date of loss)
-  INFO    – optional field absent (may affect routing but not validity)
+  ERROR    required field is missing or value is logically impossible
+  WARNING  field is present but suspicious (e.g. future date of loss)
+  INFO     optional field absent (may affect routing but not validity)
 """
 
 from __future__ import annotations
@@ -14,7 +14,7 @@ from __future__ import annotations
 import logging
 import re
 from datetime import datetime
-from typing import List, Set, Tuple
+from typing import List, Tuple
 
 from app.models.schemas import (
     ExtractedClaim,
@@ -62,14 +62,14 @@ ALL_TRACKED_FIELDS: List[str] = [f for f, _ in REQUIRED_FIELDS + IMPORTANT_FIELD
 class ValidationService:
     """
     Validates an ExtractedClaim and returns a ValidationReport.
-    Stateless – safe to call concurrently.
+    Stateless : safe to call concurrently.
     """
 
     def validate(self, claim: ExtractedClaim) -> ValidationReport:
         issues: List[ValidationIssue] = []
         missing_required: List[str] = []
 
-        # 1. Required field presence
+        #  Required field presence
         for field_path, label in REQUIRED_FIELDS:
             val = self._get_field(claim, field_path)
             if not val:
@@ -80,7 +80,7 @@ class ValidationService:
                     message=f"{label} is required but was not found in the document.",
                 ))
 
-        # 2. Important field presence (warnings)
+        # Important field presence (warnings)
         for field_path, label in IMPORTANT_FIELDS:
             val = self._get_field(claim, field_path)
             if not val:
@@ -90,19 +90,19 @@ class ValidationService:
                     message=f"{label} is missing. This may delay claim processing.",
                 ))
 
-        # 3. Date logic checks
+        # Date logic checks
         issues.extend(self._check_dates(claim))
 
-        # 4. VIN format check
+        # VIN format check
         issues.extend(self._check_vin(claim))
 
-        # 5. Estimate sanity check
+        # Estimate sanity check
         issues.extend(self._check_estimate(claim))
 
-        # 6. Phone format check
+        # Phone format check
         issues.extend(self._check_phone(claim))
 
-        # 7. Child seat consistency
+        #  Child seat consistency
         issues.extend(self._check_child_seat(claim))
 
         # Compute completeness score
@@ -125,8 +125,7 @@ class ValidationService:
             completeness_score=score,
         )
 
-    # ── Field accessor ────────────────────────────────────────────────────────
-
+    # Field accessor
     def _get_field(self, claim: ExtractedClaim, dotted_path: str):
         """Navigate a dotted attribute path like 'policy.policy_number'."""
         parts = dotted_path.split(".")
@@ -137,8 +136,7 @@ class ValidationService:
             obj = getattr(obj, part, None)
         return obj
 
-    # ── Domain checks ─────────────────────────────────────────────────────────
-
+    # Domain checks
     def _check_dates(self, claim: ExtractedClaim) -> List[ValidationIssue]:
         issues = []
         dol_raw = claim.incident.date_of_loss
@@ -223,8 +221,7 @@ class ValidationService:
             ))
         return issues
 
-    # ── Utilities ─────────────────────────────────────────────────────────────
-
+    # Utilities
     def _try_parse_date(self, raw: str) -> datetime | None:
         formats = ["%m/%d/%Y", "%m-%d-%Y", "%Y-%m-%d", "%d/%m/%Y", "%m/%d/%y"]
         for fmt in formats:

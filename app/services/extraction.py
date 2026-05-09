@@ -1,6 +1,6 @@
 """
 LLM Extraction Service
-----------------------
+
 Uses a locally-running Ollama LLM to parse raw FNOL document text
 and return a structured ExtractedClaim.
 
@@ -42,16 +42,16 @@ from app.services.ingestion import ExtractedDocument
 
 logger = logging.getLogger(__name__)
 
-# ── Prompt template ───────────────────────────────────────────────────────────
+# Prompt template
 
 SYSTEM_PROMPT = """You are an expert insurance document parser specialising in ACORD FNOL (First Notice of Loss) forms.
 Your task is to extract ALL available structured information from the provided document text and return ONLY a valid JSON object.
 
 STRICT RULES:
-1. Return ONLY the JSON object — no markdown, no explanation, no code fences.
+1. Return ONLY the JSON object: no markdown, no explanation, no code fences.
 2. If a field is not found, set it to null.
 3. Boolean fields: use true/false (JSON booleans), never strings.
-4. Monetary amounts: extract as a number (float), e.g. 2500.00 — no currency symbols.
+4. Monetary amounts: extract as a number (float), e.g. 2500.00, no currency symbols.
 5. Dates: preserve the original format from the document (e.g. MM/DD/YYYY).
 6. For incident_type choose one of: Collision, Theft, Vandalism, Natural Disaster, Fire, Flood, Hit and Run, Other, Unknown.
 
@@ -143,7 +143,8 @@ USER_PROMPT_TEMPLATE = """Extract all fields from the following FNOL document te
 
 --- DOCUMENT START ---
 {document_text}
---- DOCUMENT END ---"""
+--- DOCUMENT END ---
+"""
 
 
 class LLMExtractionService:
@@ -159,20 +160,6 @@ class LLMExtractionService:
         self._timeout = settings.OLLAMA_TIMEOUT
         self._max_retries = settings.OLLAMA_MAX_RETRIES
 
-    # def extract(self, document: ExtractedDocument) -> ExtractedClaim:
-    #     """
-    #     Main entry point: takes an ExtractedDocument and returns an ExtractedClaim.
-
-    #     Raises:
-    #         LLMUnavailableError: if Ollama service cannot be reached
-    #         LLMExtractionError:  if LLM returns unusable output after retries
-    #     """
-    #     text = document.raw_text[:12_000]  # Trim to ~3k tokens; most ACORD forms fit
-    #     prompt = USER_PROMPT_TEMPLATE.format(document_text=text)
-    #     logger.info(f"Document chars: {len(document.text)}")
-    #     raw_response = self._call_llm_with_retries(prompt)
-    #     return self._parse_response(raw_response)
-
     def extract(self, document: ExtractedDocument) -> ExtractedClaim:
         """
         Main entry point: takes an ExtractedDocument and returns an ExtractedClaim.
@@ -182,10 +169,7 @@ class LLMExtractionService:
             LLMExtractionError:  if LLM returns unusable output after retries
         """
 
-        # Original extracted text
         raw_text = document.raw_text
-
-        # Logging
         logger.info(f"Document chars: {len(raw_text)}")
         logger.info(f"Approx tokens: {len(raw_text) // 4}")
 
@@ -195,19 +179,15 @@ class LLMExtractionService:
         logger.info(f"Trimmed chars: {len(text)}")
         logger.info(f"Prompt tokens est: {len(text) // 4}")
 
-        # Build prompt
         prompt = USER_PROMPT_TEMPLATE.format(
             document_text=text
         )
 
-        # Call LLM
         raw_response = self._call_llm_with_retries(prompt)
 
-        # Parse structured response
         return self._parse_response(raw_response)
 
-    # ── LLM communication ─────────────────────────────────────────────────────
-
+    # LLM communication
     def _call_llm_with_retries(self, user_prompt: str) -> str:
         last_exc: Optional[Exception] = None
 
@@ -276,8 +256,7 @@ class LLMExtractionService:
             raise LLMExtractionError("Ollama returned an empty message content.")
         return content
 
-    # ── Response parsing ──────────────────────────────────────────────────────
-
+    # Response parsing
     def _parse_response(self, raw: str) -> ExtractedClaim:
         """
         Parse the LLM's raw text output into an ExtractedClaim.

@@ -1,5 +1,5 @@
 """
-Unit tests – DocumentIngestionService
+Unit tests DocumentIngestionService
 """
 
 import io

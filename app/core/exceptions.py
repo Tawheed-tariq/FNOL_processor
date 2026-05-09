@@ -1,6 +1,3 @@
-"""Domain-specific exception hierarchy."""
-
-
 class FNOLBaseError(Exception):
     """Base for all FNOL processing errors."""
 

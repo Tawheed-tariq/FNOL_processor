@@ -1,9 +1,9 @@
 """
 Claims API Routes
------------------
-POST /api/v1/claims/process        – process a single FNOL PDF
-POST /api/v1/claims/batch          – process up to MAX_BATCH_SIZE PDFs
-GET  /api/v1/claims/supported-routes – list available claim routes
+
+POST /api/v1/claims/process        -> process a single FNOL PDF
+POST /api/v1/claims/batch          -> process up to MAX_BATCH_SIZE PDFs
+GET  /api/v1/claims/supported-routes -> list available claim routes
 """
 
 from __future__ import annotations
@@ -41,7 +41,7 @@ _executor = ThreadPoolExecutor(max_workers=4, thread_name_prefix="fnol-worker")
 
 
 def _run_in_thread(processor: ClaimsProcessor, filename: str, content: bytes):
-    """Blocking pipeline call – runs in a thread pool worker."""
+    """Blocking pipeline call - runs in a thread pool worker."""
     return processor.process(filename, content)
 
 
@@ -72,8 +72,7 @@ def _map_exception_to_http(exc: Exception, filename: str) -> HTTPException:
     return HTTPException(status_code=500, detail=f"Processing failed for '{filename}': {exc}")
 
 
-# ── Endpoints ─────────────────────────────────────────────────────────────────
-
+# Endpoints
 @router.post(
     "/process",
     response_model=ClaimProcessingResponse,
@@ -88,9 +87,9 @@ async def process_single_claim(
     """
     Upload a single FNOL PDF for AI-powered field extraction and routing.
 
-    - **Extracts** all structured fields from the document via a local LLM (Ollama)
-    - **Validates** completeness and consistency of extracted data
-    - **Routes** the claim to: Fast-track | Manual Review | Investigation | Specialist Queue
+    - Extracts all structured fields from the document via a local LLM (Ollama)
+    - Validates completeness and consistency of extracted data
+    - Routes the claim to: Fast-track | Manual Review | Investigation | Specialist Queue
     """
     content = await _read_upload(file)
 
@@ -120,7 +119,7 @@ async def process_batch_claims(
     processor: ClaimsProcessor = Depends(get_claims_processor),
 ):
     """
-    Upload up to **{MAX_BATCH_SIZE}** FNOL PDFs for parallel processing.
+    Upload up to {MAX_BATCH_SIZE} FNOL PDFs for parallel processing.
     Returns an aggregated result with per-file success/failure status.
     """
     if not files:

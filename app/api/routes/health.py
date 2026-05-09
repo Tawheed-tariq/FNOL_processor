@@ -17,7 +17,7 @@ async def health():
     return {"status": "ok", "version": settings.APP_VERSION}
 
 
-@router.get("/health/ready", summary="Readiness check – verifies Ollama reachability")
+@router.get("/health/ready", summary="Readiness check - verifies Ollama reachability")
 async def readiness():
     """
     Returns 200 if the service is ready to process claims (Ollama reachable),

@@ -6,7 +6,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app.api.routes import claims, health
+from app.api.routes import health, claims
 from app.core.config import settings
 from app.core.logging_config import configure_logging
 
@@ -33,7 +33,7 @@ app = FastAPI(
     redoc_url="/redoc",
 )
 
-# ── Middleware ────────────────────────────────────────────────────────────────
+#  Middleware 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.ALLOWED_ORIGINS,
@@ -46,14 +46,14 @@ app.add_middleware(
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
     start = time.perf_counter()
-    logger.info("→ %s %s", request.method, request.url.path)
+    logger.info("%s %s", request.method, request.url.path)
     response = await call_next(request)
     duration = (time.perf_counter() - start) * 1000
-    logger.info("← %s %s %.1fms", request.method, request.url.path, duration)
+    logger.info("%s %s %.1fms", request.method, request.url.path, duration)
     return response
 
 
-# ── Global exception handler ──────────────────────────────────────────────────
+#  Global exception handler 
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
     logger.exception("Unhandled exception on %s %s", request.method, request.url.path)
@@ -63,6 +63,6 @@ async def global_exception_handler(request: Request, exc: Exception):
     )
 
 
-# ── Routers ───────────────────────────────────────────────────────────────────
+#  Routers 
 app.include_router(health.router, prefix="/api/v1", tags=["Health"])
 app.include_router(claims.router, prefix="/api/v1/claims", tags=["Claims"])

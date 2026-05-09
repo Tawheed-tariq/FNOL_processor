@@ -1,6 +1,6 @@
 """
 Document Ingestion Service
---------------------------
+
 Handles PDF upload validation, text extraction via pdfplumber,
 and provides a clean text payload to downstream services.
 """
@@ -10,7 +10,6 @@ from __future__ import annotations
 import io
 import logging
 from dataclasses import dataclass
-from typing import Optional
 
 import pdfplumber
 
@@ -74,7 +73,7 @@ class DocumentIngestionService:
 
         return self._extract_text(filename, content)
 
-    # ── Private helpers ───────────────────────────────────────────────────────
+    # Private helpers
 
     def _validate_file_type(self, filename: str, content: bytes) -> None:
         ext = filename.rsplit(".", 1)[-1].lower() if "." in filename else ""

@@ -1,5 +1,5 @@
 """
-Unit tests – ValidationService
+Unit tests  ValidationService
 """
 
 import pytest

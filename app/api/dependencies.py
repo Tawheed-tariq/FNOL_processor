@@ -1,5 +1,3 @@
-"""FastAPI dependency providers."""
-
 from functools import lru_cache
 from app.services.processor import ClaimsProcessor
 

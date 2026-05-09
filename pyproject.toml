@@ -3,8 +3,8 @@ testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
-pythonpath = ["."]          # ← adds project root to sys.path so 'app' is importable
-asyncio_mode = "auto"       # ← silences pytest-asyncio scope warning
+pythonpath = ["."]         
+asyncio_mode = "auto"       
 addopts = [
     "-v",
     "--tb=short",

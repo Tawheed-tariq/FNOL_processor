@@ -1,7 +1,3 @@
-"""
-Shared pytest fixtures for all tests.
-"""
-
 from __future__ import annotations
 
 import io
@@ -11,7 +7,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 from fastapi.testclient import TestClient
 
-# ── Minimal valid PDF bytes (real PDF structure) ──────────────────────────────
+# Minimal valid PDF bytes (real PDF structure)
 MINIMAL_PDF_BYTES = b"""%PDF-1.4
 1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj
 2 0 obj << /Type /Pages /Kids [3 0 R] /Count 1 >> endobj
@@ -164,8 +160,7 @@ SAMPLE_EXTRACTED_CLAIM_DICT = {
 }
 
 
-# ── App client fixture ────────────────────────────────────────────────────────
-
+# App client fixture
 @pytest.fixture(scope="session")
 def app_client() -> Generator:
     """TestClient with a mocked ClaimsProcessor to avoid Ollama dependency."""

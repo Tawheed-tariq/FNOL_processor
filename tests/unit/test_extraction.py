@@ -1,5 +1,5 @@
 """
-Unit tests – LLMExtractionService
+Unit tests  LLMExtractionService
 """
 
 import json

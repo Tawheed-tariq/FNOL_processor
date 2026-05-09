@@ -1,14 +1,14 @@
 """
 Routing Engine
---------------
+
 Rule-based engine that determines the correct claim route based on
 extracted data and validation results.
 
 Routes (in priority order evaluated):
-  1. Investigation      – fraud indicators, hit-and-run, high value, unresolved inconsistencies
-  2. Specialist Queue   – injuries, fire/flood/natural disaster, child seat damage, >1 third party
-  3. Manual Review      – missing critical fields, inconsistencies, moderate complexity
-  4. Fast-track         – clean, low-value, simple collision with all data present
+  1. Investigation       fraud indicators, hit-and-run, high value, unresolved inconsistencies
+  2. Specialist Queue    injuries, fire/flood/natural disaster, child seat damage, >1 third party
+  3. Manual Review       missing critical fields, inconsistencies, moderate complexity
+  4. Fast-track          clean, low-value, simple collision with all data present
 """
 
 from __future__ import annotations
@@ -57,7 +57,7 @@ class RoutingEngine:
         flags: List[str] = []
         reasons: List[str] = []
 
-        # ── Gather signals ────────────────────────────────────────────────────
+        # Gather signals
         estimate = claim.vehicle.estimate_amount
         incident_type = claim.incident.incident_type
         injured = claim.injured_parties
@@ -73,7 +73,7 @@ class RoutingEngine:
             and not claim.incident.report_number
         )
 
-        # ── Flag generation ───────────────────────────────────────────────────
+        # Flag generation
         if estimate and estimate >= settings.INVESTIGATION_MIN_CLAIM_AMOUNT:
             flags.append(f"HIGH_VALUE_CLAIM: ${estimate:,.0f}")
 
@@ -103,7 +103,7 @@ class RoutingEngine:
 
         completeness = validation.completeness_score
 
-        # ── Routing rules (highest priority first) ────────────────────────────
+        # Routing rules (highest priority first)
 
         # 1. Investigation
         route, reasoning, priority = self._check_investigation(
@@ -140,8 +140,7 @@ class RoutingEngine:
             flags=flags,
         )
 
-    # ── Private rule evaluators ───────────────────────────────────────────────
-
+    # rule evaluators
     def _check_investigation(
         self,
         claim: ExtractedClaim,
